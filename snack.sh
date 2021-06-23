@@ -21,9 +21,11 @@
 # |- snack.sh
 
 # ARGS:
-# -y        | Auto accept sync prompt
-# -n        | Auto reject sync prompt
-# --no-pull | Do not pull latest manifest
+# -y          | Auto accept sync prompt
+# -n          | Auto reject sync prompt
+# -h/--help   | Display this message
+# -c/--check  | Sanity checker
+# --no-pull   | Do not pull latest manifest
 
 # Apply repopicks--CREDIT Pablo Zaidenvoren <pablo@zaiden.com.ar>
 # https://github.com/PabloZaiden/switchroot-android-build/blob/master/build-scripts/repopic-and-patch.sh
@@ -119,9 +121,11 @@ Author:     Thomas Makin <halorocker89@gmail.com>
 Credits :   Pablo Zaidenvoren <pablo@zaiden.com.ar>
             The Great Wizard Azkali <a.ffcc7@gmail.com>
 
--y        | Auto accept sync prompt
--n        | Auto reject sync prompt
---no-pull | Do not pull latest manifest"
+-y          | Auto accept sync prompt
+-n          | Auto reject sync prompt
+-h/--help   | Display this message
+-c/--check  | Sanity checker
+--no-pull   | Do not pull latest manifest"
 
         exit 0
     fi
