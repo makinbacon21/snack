@@ -174,7 +174,7 @@ done
 if [[ -z $ANDROID_BUILD_TOP ]];
 then
     echo "ANDROID_BUILD_TOP not found...assuming PWD"
-    source build/envsetup.sh
+    source build/envsetup.sh || ANDROID_BUILD_TOP=$PWD
 elif [[ $ANDROID_BUILD_TOP != $PWD ]];
 then
     echo "ANDROID_BUILD_TOP is not PWD--watch out!"
