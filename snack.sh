@@ -90,12 +90,12 @@ function prep {
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
             echo "Syncing..."
-            repo sync --force-sync
+            repo --force-sync --fetch-submodules sync -c -j
         fi
     elif [[ $SYNC == true ]];
     then
         echo "Syncing..."
-        repo sync --force-sync
+        repo --force-sync --fetch-submodules sync -c -j
     fi
 }
 
