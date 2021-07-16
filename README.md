@@ -24,6 +24,19 @@ $ANDROID_BUILD_TOP/.repo/local_manifests/
 |- snack.sh
 ```
 
+## List Format
+Note that both `patchlist` and `picklist` MUST end with a newline or the last item in the list will not be read
+
+Picks:
+```
+xxxxxx      # repopick by numeric id
+"<topic>"   # repopick by topic string
+```
+Patches:
+```
+"<patch name>","path/to/directory"
+```
+
 ## Usage
 Prior to running `lunch_[product]-userdebug', run 
 ```
@@ -37,9 +50,6 @@ Args:
 -c/--check  | Sanity checker
 --no-pull   | Do not pull latest manifest
 ```
-
-## Notes
-`patchlist` and `picklist` MUST end with a newline or reading will break
 
 ## Credits
 Pablo Zaidenvoren \<pablo@zaiden.com.ar\> for work on [the original repopic-and-patch script](https://github.com/PabloZaiden/switchroot-android-build/blob/master/build-scripts/repopic-and-patch.sh)
