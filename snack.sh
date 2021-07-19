@@ -77,7 +77,7 @@ function prep {
 
     if [[ -z $MANIFEST ]];
     then
-        git -C $ANDROID_BUILD_TOP/.repo/local_manifests pull
+        git -C $ANDROID_BUILD_TOP/.repo/local_manifests pull --recurse-submodules
     fi
 
     repo forall -c 'git clean -dxf'
@@ -90,12 +90,12 @@ function prep {
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
             echo "Syncing..."
-            repo --force-sync --fetch-submodules sync -c -j
+            repo sync --force-sync
         fi
     elif [[ $SYNC == true ]];
     then
         echo "Syncing..."
-        repo --force-sync --fetch-submodules sync -c -j
+        repo sync --force-sync
     fi
 }
 
