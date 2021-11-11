@@ -23,6 +23,7 @@
 # ARGS:
 # -y          | Auto accept sync prompt
 # -n          | Auto reject sync prompt
+# -n          | Use local changes
 # -h/--help   | Display this message
 # -c/--check  | Sanity checker
 # --no-pull   | Do not pull latest manifest
@@ -80,8 +81,11 @@ function prep {
         git -C $ANDROID_BUILD_TOP/.repo/local_manifests pull --recurse-submodules
     fi
 
-    repo forall -c 'git clean -dxf'
-    repo forall -c 'git reset --hard'
+    if [[ -z $CLEAN ]];
+    then
+        repo forall -c 'git clean -dxf'
+        repo forall -c 'git reset --hard'
+    fi
 
     if [[ -z $SYNC ]];
     then
@@ -112,6 +116,11 @@ do
     then
         echo "Will not sync."
         SYNC=false
+    fi
+    if [[ "$arg" == "-w" ]];
+    then
+        echo "Will use local changes."
+        CLEAN=false
     fi
     if [[ "$arg" == "-h" ]] || [[ "$arg" == "--help" ]];
     then
