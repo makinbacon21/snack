@@ -190,5 +190,9 @@ then
 fi
 
 prep
-applyRepopicks $ANDROID_BUILD_TOP/.repo/local_manifests/picklist
-applyPatches $ANDROID_BUILD_TOP/.repo/local_manifests/patchlist
+
+if [[ -z $CLEAN ]]; then
+    applyRepopicks $ANDROID_BUILD_TOP/.repo/local_manifests/picklist
+    applyPatches $ANDROID_BUILD_TOP/.repo/local_manifests/patchlist
+else
+    echo Will not repopick or patch--run without -w to pick and patch
