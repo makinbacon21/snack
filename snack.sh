@@ -21,33 +21,13 @@
 # |- snack.sh
 
 # ARGS:
-# -y          | Auto accept sync prompt
-# -n          | Auto reject sync prompt
-# -n          | Use local changes
-# -h/--help   | Display this message
-# -c/--check  | Sanity checker
-# --no-pull   | Do not pull latest manifest
-
-# Apply repopicks--CREDIT Pablo Zaidenvoren <pablo@zaiden.com.ar>
-# https://github.com/PabloZaiden/switchroot-android-build/blob/master/build-scripts/repopic-and-patch.sh
-
-function applyRepopicks {
-    REPOPICKS_FILE=$1
-    echo "Applying repopicks from $REPOPICKS_FILE"
-
-    cd $ANDROID_BUILD_TOP
-    while IFS= read -r line; do
-        if [[ ${line:0:1} == "\"" ]];
-        then
-            echo "Picking topic: $line"
-            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py -t $line"
-        else
-            echo "Picking: $line"
-            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py $line"
-        fi
-
-    done < $REPOPICKS_FILE
-}
+# -y       | Auto accept sync prompt
+# -n       | Auto reject sync prompt
+# -w       | Use local changes (don't clean)
+# -h       | Display this message
+# -c       | Sanity checker
+# -p       | Do not pull latest manifest
+# -j <int> | Set jobs/connections to arbitrary value
 
 # Apply patched--CREDIT Pablo Zaidenvoren <pablo@zaiden.com.ar>
 # https://github.com/PabloZaiden/switchroot-android-build/blob/master/build-scripts/repopic-and-patch.sh
@@ -70,6 +50,78 @@ function applyPatches {
             eval "patch -p1 -d ${ANDROID_BUILD_TOP}/${parts[1]} -i ${PATCHDIR}/${parts[0]}"
         fi
     done < $PATCHES_FILE
+}
+
+# Apply repopicks--CREDIT Pablo Zaidenvoren <pablo@zaiden.com.ar>
+# https://github.com/PabloZaiden/switchroot-android-build/blob/master/build-scripts/repopic-and-patch.sh
+
+function applyRepopicks {
+    REPOPICKS_FILE=$1
+    echo "Applying repopicks from $REPOPICKS_FILE"
+
+    cd $ANDROID_BUILD_TOP
+    while IFS= read -r line; do
+        if [[ ${line:0:1} == "\"" ]];
+        then
+            echo "Picking topic: $line"
+            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py -t $line"
+        else
+            echo "Picking: $line"
+            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py $line"
+        fi
+
+    done < $REPOPICKS_FILE
+}
+
+function check {
+    if [[ -z $ANDROID_BUILD_TOP ]];
+    then
+        echo "ANDROID_BUILD_TOP not found--assuming PWD and running envsetup"
+        source build/envsetup.sh || echo "envsetup failed--are you in the right directory?"
+        exit 0
+    elif [[ $ANDROID_BUILD_TOP != $PWD ]];
+    then
+        echo "\
+        ANDROID_BUILD_TOP is not PWD
+        Make sure you're in the right directory!"
+    fi
+    if [[ ! -d "$ANDROID_BUILD_TOP/patches" ]];
+    then
+        echo "\
+        Patch folder not found
+        Make sure your manifest has patches!"
+    fi
+    if [[ ! -f "$ANDROID_BUILD_TOP/patchlist" ]];
+    then
+        echo "\
+        Patch list not found
+        Make sure your snack submodule is up to date!"
+    fi
+    if [[ ! -f "$ANDROID_BUILD_TOP/picklist" ]];
+    then
+        echo "\
+        Pick list not found
+        Make sure your snack submodule is up to date!"
+    fi
+    exit 0
+}
+
+function help {
+    echo "\
+Welcome to snack!
+Author:     Thomas Makin <halorocker89@gmail.com>
+Credits :   Pablo Zaidenvoren <pablo@zaiden.com.ar>
+            The Great Wizard Azkali <a.ffcc7@gmail.com>
+
+-y       | Auto accept sync prompt
+-n       | Auto reject sync prompt
+-w       | Use local changes (don't clean)
+-h       | Display this message
+-c       | Sanity checker
+-p       | Do not pull latest manifest
+-j <int> | Set jobs/connections to arbitrary value"
+    
+    exit 0
 }
 
 # Setup, clean, and update dev environment
@@ -103,82 +155,56 @@ function prep {
     fi
 }
 
+function usage
+{
+    echo "Usage: ./snack.sh [-y] [-n] [-w] [-h] [-c] [-p] [-j <int>]"
+    exit 1;
+}
+
 # ENTRY
 
-for arg in "$@"
-do
-    if [[ "$arg" == "-y" ]];
-    then
-        echo "Will sync when ready."
-        SYNC=true
-    fi
-    if [[ "$arg" == "-n" ]];
-    then
-        echo "Will not sync."
-        SYNC=false
-    fi
-    if [[ "$arg" == "-w" ]];
-    then
-        echo "Will use local changes."
-        CLEAN=false
-    fi
-    if [[ "$arg" == "-h" ]] || [[ "$arg" == "--help" ]];
-    then
-        echo "\
-Welcome to snack!
-Author:     Thomas Makin <halorocker89@gmail.com>
-Credits :   Pablo Zaidenvoren <pablo@zaiden.com.ar>
-            The Great Wizard Azkali <a.ffcc7@gmail.com>
-
--y          | Auto accept sync prompt
--n          | Auto reject sync prompt
--h/--help   | Display this message
--c/--check  | Sanity checker
---no-pull   | Do not pull latest manifest"
-
-        exit 0
-    fi
-
-    if [[ "$arg" == "-c" ]] || [[ "$arg" == "--check" ]];
-    then
-        if [[ -z $ANDROID_BUILD_TOP ]];
-        then
-            echo "ANDROID_BUILD_TOP not found--assuming PWD and running envsetup"
-            source build/envsetup.sh || echo "envsetup failed--are you in the right directory?"
-            exit 0
-        elif [[ $ANDROID_BUILD_TOP != $PWD ]];
-        then
-            echo "\
-            ANDROID_BUILD_TOP is not PWD
-            Make sure you're in the right directory!"
-        fi
-        if [[ ! -d "$ANDROID_BUILD_TOP/patches" ]];
-        then
-            echo "\
-            Patch folder not found
-            Make sure your manifest has patches!"
-        fi
-        if [[ ! -f "$ANDROID_BUILD_TOP/patchlist" ]];
-        then
-            echo "\
-            Patch list not found
-            Make sure your snack submodule is up to date!"
-        fi
-        if [[ ! -f "$ANDROID_BUILD_TOP/picklist" ]];
-        then
-            echo "\
-            Pick list not found
-            Make sure your snack submodule is up to date!"
-        fi
-        exit 0
-    fi
-
-    if [[ "$arg" == "--no-pull" ]];
-    then
-        echo "Will not pull latest manifest."
-        MANIFEST=false
-    fi
+while getopts ":ynwhcpj:" o; do
+    case "${o}" in
+        y)
+            echo "Will sync when ready."
+            SYNC=true
+            ;;
+        n)
+            echo "Will not sync."
+            SYNC=false
+            ;;
+        w)
+            echo "Will use local changes."
+            CLEAN=false
+            ;;
+        h)
+            help
+            ;;
+        c)
+            check
+            ;;
+        p)
+            echo "Will not pull latest manifest."
+            MANIFEST=false
+            ;;
+        j)
+            if [[ -z $OPTARG ]];
+            then
+                usage
+            fi
+            JOBS=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
 done
+shift $((OPTIND-1))
+
+if [[ -z $JOBS ]];
+then
+    JOBS=$(($(nproc) - 1)) # Google guidelines for `repo`
+fi
 
 if [[ -z $ANDROID_BUILD_TOP ]];
 then
