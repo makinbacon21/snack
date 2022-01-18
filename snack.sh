@@ -64,10 +64,10 @@ function applyRepopicks {
         if [[ ${line:0:1} == "\"" ]];
         then
             echo "Picking topic: $line"
-            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py -t $line"
+            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py -f -t $line"
         else
             echo "Picking: $line"
-            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py $line"
+            eval "$ANDROID_BUILD_TOP/vendor/lineage/build/tools/repopick.py -f $line"
         fi
 
     done < $REPOPICKS_FILE
