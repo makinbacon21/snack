@@ -146,12 +146,12 @@ function prep {
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
             echo "Syncing..."
-            repo sync --force-sync
+            repo sync --force-sync -j${JOBS}
         fi
     elif [[ $SYNC == true ]];
     then
         echo "Syncing..."
-        repo sync --force-sync
+        repo sync --force-sync -j${JOBS}
     fi
 }
 
